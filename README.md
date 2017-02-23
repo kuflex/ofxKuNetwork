@@ -1,6 +1,6 @@
-# ofxKuNetwork - openFrameworks addon for sending arrays over network. 
+# ofxKuNetwork - openFrameworks addon for sending arrays over network
 
-It's based on ofxNetwork core addon.
+It's based on ofxNetwork core addon and uses TCP for transmission.
 
 It supports int, float, vector<int>, vector<float>, ofPixels values. 
 
