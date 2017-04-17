@@ -8,7 +8,11 @@ It supports int, float, vector<int>, vector<float>, ofPixels values.
 
 Download and unzip as *ofxKuNetwork* to *addons* folder of your openFrameworks installation.
 
-Addon works in openFrameworks 0.9.3, OSC/Windows/Linux.
+Addon works in openFrameworks 0.9.3, OSX/Windows/Linux.
+
+For working with openFrameworks 0.7.4 - see addon's branch dedicated to 0.7.4. Also, you need to add the following lines to *public:* declarations of *ofxNetwork* addon's files:
+* ofxTCPClient.h: ofxTCPManager	&TCPClientRef() { return TCPClient; }	//Added by Kuflex
+* ofxTCPServer.h: ofxTCPManager	&TCPServerRef() { return TCPServer; }	//Added by Kuflex
 
 ##Usage
 
