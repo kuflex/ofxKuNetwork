@@ -8,9 +8,10 @@
 class ofxKuNetworkTcpClient
 {
 public:
-	void setup( const string &addr, int port, int packetSize = 1024 );	
+	void setup( const string &addr, int port, int packetSize = 1024, bool enabled=true );	
 	void close();
-	
+
+	int bufferSize() { return buffer_.size(); }
 	void clearBuffer();
 	void putU8Array(const unsigned char *v, int n);
 	void putInt(int value);
@@ -24,8 +25,11 @@ public:
 	bool send( unsigned char *data, int dataSize, int frameNumber );
 	void update();
 
+	bool enabled() { return enabled_; }
 	bool connected() { return _connected; }
 private:
+	bool enabled_;
+
 	ofxTCPClient_ku tcpClient;
 	int _port;
 	string _addr;
@@ -44,8 +48,10 @@ private:
 class ofxKuNetworkTcpServer : public ofThread{
 public:
 
-	void setup(int port, int packetSize = 1024, bool threaded = true, int maxBufferSize=10000000);
+	void setup(int port, int packetSize = 1024, bool threaded = true, int maxBufferSize=10000000, bool enabled=true);
 	//if threaded == true, it is asynchronous mode
+
+	bool enabled() { return enabled_; }
 
 	void close();
 	void receive();
@@ -70,6 +76,7 @@ public:
 
 
 private:
+	bool enabled_;
 	bool _threaded;
 
 	int _port;
@@ -95,4 +102,5 @@ private:
 	vector<unsigned char> buffer_;
 	int bufferSize_;
 	int bufferIndex_;
+	void shiftBuffer( char *buffer, int &len, int newLen );
 };
