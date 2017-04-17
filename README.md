@@ -10,9 +10,7 @@ Download and unzip as *ofxKuNetwork* to *addons* folder of your openFrameworks i
 
 Addon works in openFrameworks 0.9.3, OSX/Windows/Linux.
 
-For working with openFrameworks 0.7.4 - see addon's branch dedicated to 0.7.4. In this case, please don not add to the project files 
- 	*ofxTCPClient_ku.cpp*, *ofxTCPClient_ku.h*,	*ofxTCPServer_ku.cpp*, *ofxTCPServer_ku.h*.
-  Also, you need to add the following lines to *public:* declarations of *ofxNetwork* addon's files:
+For working with openFrameworks 0.7.4 - see addon's branch dedicated to 0.7.4. Also, you need to add the following lines to *public:* declarations of *ofxNetwork* addon's files:
 * ofxTCPClient.h: ofxTCPManager	&TCPClientRef() { return TCPClient; }	//Added by Kuflex
 * ofxTCPServer.h: ofxTCPManager	&TCPServerRef() { return TCPServer; }	//Added by Kuflex
 
