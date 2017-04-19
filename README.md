@@ -4,7 +4,7 @@ It's based on ofxNetwork core addon and uses TCP for transmission.
 
 It supports int, float, vector<int>, vector<float>, ofPixels values. 
 
-##Installation
+## Installation
 
 Download and unzip as *ofxKuNetwork* to *addons* folder of your openFrameworks installation.
 
@@ -14,7 +14,7 @@ For working with openFrameworks 0.7.4 - see addon's branch dedicated to 0.7.4. A
 * ofxTCPClient.h: ofxTCPManager	&TCPClientRef() { return TCPClient; }	//Added by Kuflex
 * ofxTCPServer.h: ofxTCPManager	&TCPServerRef() { return TCPServer; }	//Added by Kuflex
 
-##Usage
+## Usage
 
 Please, see example *example-basic* included in addon.
 
