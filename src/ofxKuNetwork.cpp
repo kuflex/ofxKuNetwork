@@ -292,11 +292,11 @@ void ofxKuNetworkTcpServer::setup( int port, int packetSize, bool threaded, int 
 }
 
 //-------------------------------------------------------------------
-void ofxKuNetworkTcpServer::setupForParsingBuffer(vector<unsigned char> &buffer) {
+void ofxKuNetworkTcpServer::setupForParsingBuffer(vector<unsigned char> &buffer, int size) {
 	enabled_ = false;
 	dataParsingMode_ = true;
 
-	_size = buffer.size();
+	_size = (size==-1)?buffer.size():size;
 
 	maxN = _size;		
 	_N = 0;
