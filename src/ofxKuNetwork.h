@@ -8,9 +8,19 @@
 class ofxKuNetworkTcpClient
 {
 public:
+	ofxKuNetworkTcpClient();
 	void setup( const string &addr, int port, int packetSize = 1024, bool enabled=true );	
+	void setDataPushMode(bool d);		//if true - collect data to buffer if even enabled=false
+										//false by default
 	void close();
-	
+
+	bool enabled() { return enabled_; }
+	bool connected() { return _connected; }
+	bool dataPushMode() { return dataPushMode_; }
+	int frameNumber() { return frameNumber_; }
+
+	int bufferSize() { return buffer_.size(); }
+	vector<unsigned char> &buffer() { return buffer_; } 
 	void clearBuffer();
 	void putU8Array(const unsigned char *v, int n);
 	void putInt(int value);
@@ -24,10 +34,11 @@ public:
 	bool send( unsigned char *data, int dataSize, int frameNumber );
 	void update();
 
-	bool enabled() { return enabled_; }
-	bool connected() { return _connected; }
+
 private:
 	bool enabled_;
+	bool dataPushMode_;
+	bool dataPushing();
 
 	ofxTCPClient_ku tcpClient;
 	int _port;
