@@ -255,9 +255,16 @@ void ofxKuNetworkTcpClient::send() {
 //-------------------------------------------------------------------
 //-------------------------------------------------------------------
 //-------------------------------------------------------------------
+ofxKuNetworkTcpServer::ofxKuNetworkTcpServer() {
+	enabled_ = false;
+	dataParsingMode_ = false;
+}
+
+//-------------------------------------------------------------------
 void ofxKuNetworkTcpServer::setup( int port, int packetSize, bool threaded, int maxBufferSize, bool enabled )		
 {
 	enabled_ = enabled;
+	dataParsingMode_ = false;
 	_threaded = threaded;
 	_wantRestart = false;
 
@@ -282,6 +289,28 @@ void ofxKuNetworkTcpServer::setup( int port, int packetSize, bool threaded, int 
 			startThread( true, false );   //blocking, verbose
 		}
 	}
+}
+
+//-------------------------------------------------------------------
+void ofxKuNetworkTcpServer::setupForParsingBuffer(vector<unsigned char> &buffer) {
+	enabled_ = false;
+	dataParsingMode_ = true;
+
+	_size = buffer.size();
+
+	maxN = _size;		
+	_N = 0;
+
+	bufferSize_ = _size;
+	buffer_.resize(_size);
+	memcpy(&buffer_[0], &buffer[0], _size);
+
+	bufferIndex_ = 0;
+}
+
+//-------------------------------------------------------------------
+bool ofxKuNetworkTcpServer::parsing() {
+	return (enabled_ || dataParsingMode_);
 }
 
 //-------------------------------------------------------------------
@@ -465,7 +494,7 @@ bool ofxKuNetworkTcpServer::isDataNew() {
 
 //-------------------------------------------------------------------
 bool ofxKuNetworkTcpServer::getU8Array(unsigned char *v, int n) {
-	if (!enabled_) return false;
+	if (!parsing()) return false;
 	if (n + bufferIndex_ <= bufferSize_) {
 		for (int i = 0; i < n; i++) {
 			v[i] = buffer_[i + bufferIndex_];
@@ -478,7 +507,7 @@ bool ofxKuNetworkTcpServer::getU8Array(unsigned char *v, int n) {
 
 //-------------------------------------------------------------------
 int ofxKuNetworkTcpServer::getInt() {
-	if (!enabled_) return 0;
+	if (!parsing()) return 0;
 	int v;
 	if (getU8Array((unsigned char*)&v, sizeof(v))) {
 		return v;
@@ -488,7 +517,7 @@ int ofxKuNetworkTcpServer::getInt() {
 
 //-------------------------------------------------------------------
 float ofxKuNetworkTcpServer::getFloat() {
-	if (!enabled_) return 0;
+	if (!parsing()) return 0;
 	float v;
 	if (getU8Array((unsigned char*)&v, sizeof(v))) {
 		return v;
@@ -498,7 +527,7 @@ float ofxKuNetworkTcpServer::getFloat() {
 
 //-------------------------------------------------------------------
 bool ofxKuNetworkTcpServer::getIntVector(vector<int> &v) {
-	if (!enabled_) return false;
+	if (!parsing()) return false;
 	int n = getInt();
 	if (n > 0 && n + bufferIndex_ <= bufferSize_) {
 		v.resize(n);
@@ -510,7 +539,7 @@ bool ofxKuNetworkTcpServer::getIntVector(vector<int> &v) {
 
 //-------------------------------------------------------------------
 bool ofxKuNetworkTcpServer::getFloatVector(vector<float> &v) {
-	if (!enabled_) return false;
+	if (!parsing()) return false;
 	int n = getInt();
 	if (n > 0 && n + bufferIndex_ <= bufferSize_) {
 		v.resize(n);
@@ -522,7 +551,7 @@ bool ofxKuNetworkTcpServer::getFloatVector(vector<float> &v) {
 
 //-------------------------------------------------------------------
 bool ofxKuNetworkTcpServer::getU8Vector(vector<unsigned char> &v) {
-	if (!enabled_) return false;
+	if (!parsing()) return false;
 	int n = getInt();
 	if (n > 0 && n + bufferIndex_ <= bufferSize_) {
 		v.resize(n);
@@ -535,7 +564,7 @@ bool ofxKuNetworkTcpServer::getU8Vector(vector<unsigned char> &v) {
 //-------------------------------------------------------------------
 ofPixels ofxKuNetworkTcpServer::getPixels() {
 	ofPixels pix;
-	if (!enabled_) return pix;
+	if (!parsing()) return pix;
 
 	int w = getInt();
 	int h = getInt();

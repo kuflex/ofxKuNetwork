@@ -57,11 +57,15 @@ private:
 //Data receiver, working as syncronous or asynchronous 
 class ofxKuNetworkTcpServer : public ofThread{
 public:
-
+	ofxKuNetworkTcpServer();
 	void setup(int port, int packetSize = 1024, bool threaded = true, int maxBufferSize=10000000, bool enabled=true);
 	//if threaded == true, it is asynchronous mode
+	
+	//use this for parsing the buffer
+	void setupForParsingBuffer(vector<unsigned char> &buffer);	
 
 	bool enabled() { return enabled_; }
+	bool dataParsingMode() { return dataParsingMode_; }
 
 	void close();
 	void receive();
@@ -87,6 +91,9 @@ public:
 
 private:
 	bool enabled_;
+	bool dataParsingMode_;
+	bool parsing();
+
 	bool _threaded;
 
 	int _port;
