@@ -62,7 +62,7 @@ public:
 	//if threaded == true, it is asynchronous mode
 	
 	//use this for parsing the buffer
-	void setupForParsingBuffer(vector<unsigned char> &buffer);	
+	void setupForParsingBuffer(vector<unsigned char> &buffer, int size=-1);	
 
 	bool enabled() { return enabled_; }
 	bool dataParsingMode() { return dataParsingMode_; }
