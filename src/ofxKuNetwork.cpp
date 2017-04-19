@@ -72,6 +72,11 @@ private:
 };
 
 //-------------------------------------------------------------------
+ofxKuNetworkTcpClient::ofxKuNetworkTcpClient() {
+	dataPushMode_ = false;	//false by default
+}
+
+//-------------------------------------------------------------------
 void ofxKuNetworkTcpClient::setup( const string &addr, int port, int packetSize, bool enabled )
 {
 	enabled_ = enabled;
@@ -155,16 +160,27 @@ bool ofxKuNetworkTcpClient::send( unsigned char *data, int size, int frameNumber
 	return res;
 }
 
+//-------------------------------------------------------------------
+//if true - collect data to buffer if even enabled=false
+//false by default
+void ofxKuNetworkTcpClient::setDataPushMode(bool d) {		
+	dataPushMode_ = d;
+}
+
+//-------------------------------------------------------------------
+bool ofxKuNetworkTcpClient::dataPushing() {
+	return (enabled_ || dataPushMode_);
+}
 
 //-------------------------------------------------------------------
 void ofxKuNetworkTcpClient::clearBuffer() {
-	if (!enabled_) return;
+	if (!dataPushing()) return;
 	buffer_.clear();
 }
 
 //-------------------------------------------------------------------
 void ofxKuNetworkTcpClient::putU8Array(const unsigned char *v, int n) {
-	if (!enabled_) return;
+	if (!dataPushing()) return;
 	int m = buffer_.size();
 	buffer_.resize(m + n);
 	for (int i = 0; i < n; i++) {
@@ -174,19 +190,19 @@ void ofxKuNetworkTcpClient::putU8Array(const unsigned char *v, int n) {
 
 //-------------------------------------------------------------------
 void ofxKuNetworkTcpClient::putInt(int value) {
-	if (!enabled_) return;
+	if (!dataPushing()) return;
 	putU8Array((unsigned char*)&value, sizeof(value));
 }
 
 //-------------------------------------------------------------------
 void ofxKuNetworkTcpClient::putFloat(float value) {
-	if (!enabled_) return;
+	if (!dataPushing()) return;
 	putU8Array((unsigned char*)&value, sizeof(value));
 }
 
 //-------------------------------------------------------------------
 void ofxKuNetworkTcpClient::putIntVector(const vector<int> &v) {
-	if (!enabled_) return;
+	if (!dataPushing()) return;
 	if (v.size() > 0) {
 		putInt(v.size() * sizeof(v[0]));
 		putU8Array((unsigned char*)&v[0], sizeof(v[0])*v.size());
@@ -195,7 +211,7 @@ void ofxKuNetworkTcpClient::putIntVector(const vector<int> &v) {
 
 //-------------------------------------------------------------------
 void ofxKuNetworkTcpClient::putFloatVector(const vector<float> &v) {
-	if (!enabled_) return;
+	if (!dataPushing()) return;
 	if (v.size() > 0) {
 		putInt(v.size() * sizeof(v[0]));
 		putU8Array((unsigned char*)&v[0], sizeof(v[0])*v.size());
@@ -204,7 +220,7 @@ void ofxKuNetworkTcpClient::putFloatVector(const vector<float> &v) {
 
 //-------------------------------------------------------------------
 void ofxKuNetworkTcpClient::putU8Vector(const vector<unsigned char> &v) {
-	if (!enabled_) return;
+	if (!dataPushing()) return;
 	if (v.size() > 0) {
 		putInt(v.size() * sizeof(v[0]));
 		putU8Array((unsigned char*)&v[0], sizeof(v[0])*v.size());
@@ -213,7 +229,7 @@ void ofxKuNetworkTcpClient::putU8Vector(const vector<unsigned char> &v) {
 
 //-------------------------------------------------------------------
 void ofxKuNetworkTcpClient::putPixels(const ofPixels &pix) {
-	if (!enabled_) return;
+	if (!dataPushing()) return;
 	putInt(pix.getWidth());
 	putInt(pix.getHeight());
 	putInt(pix.getNumChannels());
@@ -227,7 +243,7 @@ void ofxKuNetworkTcpClient::putPixels(const ofPixels &pix) {
 
 //-------------------------------------------------------------------
 void ofxKuNetworkTcpClient::send() {
-	if (!enabled_) return;
+	if (!dataPushing()) return;
 	if (buffer_.size() > 0) {
 		send(&buffer_[0], buffer_.size(), frameNumber_++);
 		buffer_.clear();
