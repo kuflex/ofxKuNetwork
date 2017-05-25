@@ -73,7 +73,13 @@ private:
 
 //-------------------------------------------------------------------
 ofxKuNetworkTcpClient::ofxKuNetworkTcpClient() {
+	enabled_ = false;
 	dataPushMode_ = false;	//false by default
+}
+
+//-------------------------------------------------------------------
+ofxKuNetworkTcpClient::~ofxKuNetworkTcpClient() {
+	close();
 }
 
 //-------------------------------------------------------------------
@@ -258,6 +264,11 @@ void ofxKuNetworkTcpClient::send() {
 ofxKuNetworkTcpServer::ofxKuNetworkTcpServer() {
 	enabled_ = false;
 	dataParsingMode_ = false;
+}
+
+//-------------------------------------------------------------------
+ofxKuNetworkTcpServer::~ofxKuNetworkTcpServer() {
+	close();
 }
 
 //-------------------------------------------------------------------

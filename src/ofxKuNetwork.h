@@ -9,7 +9,8 @@ class ofxKuNetworkTcpClient
 {
 public:
 	ofxKuNetworkTcpClient();
-	void setup( const string &addr, int port, int packetSize = 1024, bool enabled=true );	
+	~ofxKuNetworkTcpClient();
+	void setup( const string &addr, int port, int packetSize = 1024, bool enabled=true );
 	void setDataPushMode(bool d);		//if true - collect data to buffer if even enabled=false
 										//false by default
 	void close();
@@ -58,6 +59,7 @@ private:
 class ofxKuNetworkTcpServer : public ofThread{
 public:
 	ofxKuNetworkTcpServer();
+	~ofxKuNetworkTcpServer();
 	void setup(int port, int packetSize = 1024, bool threaded = true, int maxBufferSize=10000000, bool enabled=true);
 	//if threaded == true, it is asynchronous mode
 	
