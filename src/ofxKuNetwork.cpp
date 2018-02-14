@@ -541,8 +541,8 @@ bool ofxKuNetworkTcpServer::getIntVector(vector<int> &v) {
 	if (!parsing()) return false;
 	int n = getInt();
 	if (n > 0 && n + bufferIndex_ <= bufferSize_) {
-		v.resize(n);
-		return getU8Array((unsigned char *)&v[0], sizeof(v[0])*n);
+		v.resize(n/sizeof(int));
+		return getU8Array((unsigned char *)&v[0], n);
 	}
 	v.clear();
 	return false;
@@ -553,8 +553,8 @@ bool ofxKuNetworkTcpServer::getFloatVector(vector<float> &v) {
 	if (!parsing()) return false;
 	int n = getInt();
 	if (n > 0 && n + bufferIndex_ <= bufferSize_) {
-		v.resize(n);
-		return getU8Array((unsigned char *)&v[0], sizeof(v[0])*n);
+		v.resize(n/sizeof(float));
+		return getU8Array((unsigned char *)&v[0], n);
 	}
 	v.clear();
 	return false;
