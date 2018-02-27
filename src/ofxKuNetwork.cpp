@@ -324,6 +324,8 @@ void ofxKuNetworkTcpServer::setupForParsingBuffer(unsigned char *buffer, int siz
 	memcpy(&buffer_[0], buffer, _size);
 
 	bufferIndex_ = 0;
+
+	reader_.setup_no_copy(&buffer_[0], _size);
 }
 
 //-------------------------------------------------------------------
@@ -499,12 +501,12 @@ bool ofxKuNetworkTcpServer::isDataNew() {
 	if (result) {
 		//copy buffer for reading
 		//TODO current implementation is unsafe, need use mutex, because thread can overwrite _size and _data during copy!
-		bufferIndex_ = 0;		
 		bufferSize_ = _size;
 		buffer_.resize(bufferSize_);
 		for (int i = 0; i < bufferSize_; i++) {
 			buffer_[i] = _data[i];
 		}
+		reader_.setup_no_copy(&buffer_[0], _size);
 	}
 	if (_threaded) unlock();
 	return result;
@@ -513,70 +515,37 @@ bool ofxKuNetworkTcpServer::isDataNew() {
 //-------------------------------------------------------------------
 bool ofxKuNetworkTcpServer::getU8Array(unsigned char *v, int n) {
 	if (!parsing()) return false;
-	if (n + bufferIndex_ <= bufferSize_) {
-		for (int i = 0; i < n; i++) {
-			v[i] = buffer_[i + bufferIndex_];
-		}
-		bufferIndex_ += n;
-		return true;
-	}
-	return false;
+	return reader_.getU8Array(v, n);	
 }
 
 //-------------------------------------------------------------------
 int ofxKuNetworkTcpServer::getInt() {
 	if (!parsing()) return 0;
-	int v;
-	if (getU8Array((unsigned char*)&v, sizeof(v))) {
-		return v;
-	}
-	return 0;
+	return reader_.getInt();
 }
 
 //-------------------------------------------------------------------
 float ofxKuNetworkTcpServer::getFloat() {
 	if (!parsing()) return 0;
-	float v;
-	if (getU8Array((unsigned char*)&v, sizeof(v))) {
-		return v;
-	}
-	return 0;
+	return reader_.getFloat();
 }
 
 //-------------------------------------------------------------------
 bool ofxKuNetworkTcpServer::getIntVector(vector<int> &v) {
 	if (!parsing()) return false;
-	int n = getInt();
-	if (n > 0 && n + bufferIndex_ <= bufferSize_) {
-		v.resize(n/sizeof(int));
-		return getU8Array((unsigned char *)&v[0], n);
-	}
-	v.clear();
-	return false;
+	return reader_.getIntVector(v);
 }
 
 //-------------------------------------------------------------------
 bool ofxKuNetworkTcpServer::getFloatVector(vector<float> &v) {
 	if (!parsing()) return false;
-	int n = getInt();
-	if (n > 0 && n + bufferIndex_ <= bufferSize_) {
-		v.resize(n/sizeof(float));
-		return getU8Array((unsigned char *)&v[0], n);
-	}
-	v.clear();
-	return false;
+	return reader_.getFloatVector(v);
 }
 
 //-------------------------------------------------------------------
 bool ofxKuNetworkTcpServer::getU8Vector(vector<unsigned char> &v) {
 	if (!parsing()) return false;
-	int n = getInt();
-	if (n > 0 && n + bufferIndex_ <= bufferSize_) {
-		v.resize(n);
-		return getU8Array((unsigned char *)&v[0], sizeof(v[0])*n);
-	}
-	v.clear();
-	return false;
+	return reader_.getU8Vector(v);
 }
 
 //-------------------------------------------------------------------

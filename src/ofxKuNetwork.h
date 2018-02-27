@@ -2,6 +2,7 @@
 
 #include "ofMain.h"
 #include "ofxNetwork_ku.h"
+#include "KuBufferReader.h"
 
 
 //Synchronous data sender
@@ -112,7 +113,8 @@ private:
 	void receive0();
 	vector<char> _buffer;
 	int maxN;
-	int _N;			//Current count of received bytes
+	int _N;					//Current count of received bytes
+	KuBufferReader reader_;	//We use it for parsing buffer. Hint: you can use this class outside openFrameworks.
 
 	bool _wantRestart;
 	void startTCP();
