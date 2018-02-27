@@ -8,7 +8,10 @@
 using namespace std;
 
 struct KuBufferReader {
+	KuBufferReader();
 	void setup_no_copy(unsigned char *buffer, int size);
+	bool getU8Array(unsigned char *v, int n);
+
 	int getInt();								
 	float getFloat();
 	bool getIntVector(vector<int> &v);
