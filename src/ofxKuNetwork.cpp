@@ -302,19 +302,26 @@ void ofxKuNetworkTcpServer::setup( int port, int packetSize, bool threaded, int 
 	}
 }
 
+
 //-------------------------------------------------------------------
 void ofxKuNetworkTcpServer::setupForParsingBuffer(vector<unsigned char> &buffer, int size) {
+	if (size < 0) size = buffer.size();
+	setupForParsingBuffer(&buffer[0], size);
+}
+
+//-------------------------------------------------------------------
+void ofxKuNetworkTcpServer::setupForParsingBuffer(unsigned char *buffer, int size) {
 	enabled_ = false;
 	dataParsingMode_ = true;
 
-	_size = (size==-1)?buffer.size():size;
+	_size = size;
 
 	maxN = _size;		
 	_N = 0;
 
 	bufferSize_ = _size;
 	buffer_.resize(_size);
-	memcpy(&buffer_[0], &buffer[0], _size);
+	memcpy(&buffer_[0], buffer, _size);
 
 	bufferIndex_ = 0;
 }
