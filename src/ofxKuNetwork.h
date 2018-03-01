@@ -110,6 +110,8 @@ private:
 	int _size;
 	vector<unsigned char> _data;
 
+	float time_received_;	//last time of receiving data
+
 	void receive0();
 	vector<char> _buffer;
 	int maxN;

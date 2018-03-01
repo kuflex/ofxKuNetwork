@@ -292,6 +292,8 @@ void ofxKuNetworkTcpServer::setup( int port, int packetSize, bool threaded, int 
 	isDataNew_ = false;
 	bufferIndex_ = 0;
 
+	time_received_ = ofGetElapsedTimef();
+
 	if (enabled_) {
 		_data.resize( maxN );
 		startTCP();
@@ -370,6 +372,12 @@ void ofxKuNetworkTcpServer::threadedFunction()
 	while( isThreadRunning() != 0 ){
 		//Receive
 		receive0();
+		
+		//if not received data for a long time - then wait a little
+		float time = ofGetElapsedTimef();
+		if (TCP.getNumClients() == 0 || time - time_received_ >= 1.0) {	//TODO parameter of waiting
+			ofSleepMillis(200);			//TODO parameter of sleeping
+		}
 
 		//Restarting - just disconnect all clients
 		if ( _wantRestart ) {
@@ -412,7 +420,9 @@ void ofxKuNetworkTcpServer::receive0()
 {
 	if (!enabled_) return;
 	char *buffer = &_buffer[0];
-	for(int k = 0; k < TCP.getNumClients(); k++){
+	for(int k = 0; k < TCP.getNumClients(); k++){		
+		//TODO here is the problem: if several clients sent data, it will be shuffled!
+		//So, need to collect data for each client separately
 		if ( !TCP.isClientConnected(k) ) { 
 			continue;
 		}
@@ -422,54 +432,58 @@ void ofxKuNetworkTcpServer::receive0()
 			free = min( free, _packetSize );
 			int rec = TCP.receiveRawBytes( k, (char *)(buffer + _N), free ); 
 			if ( rec >= 0 ) {
-				_N += rec;		
-				//cout << "rec " << rec << endl;
-				//Searching header
-				ofxKuNetwork_PacketHeader header;
-				int headerPos = header.findHeader( (char *)buffer, _N );
-				if ( headerPos >= 0 ) {
+				if (rec > 0) {
+					time_received_ = ofGetElapsedTimef();
 
-					//cout << "reading frame " << header.frame << endl;
-					
-					//Header is found, now receive data
+					_N += rec;
+					//cout << "rec " << rec << endl;
+					//Searching header
+					ofxKuNetwork_PacketHeader header;
+					int headerPos = header.findHeader((char *)buffer, _N);
+					if (headerPos >= 0) {
 
-					int headerEnd = headerPos + ofxKuNetwork_PacketHeaderSize;
-					int N = _N - headerEnd;
+						//cout << "reading frame " << header.frame << endl;
 
-					//Shifting buffer to data begin
-					shiftBuffer( buffer, _N, N );
+						//Header is found, now receive data
 
-					int size = header.size;
+						int headerEnd = headerPos + ofxKuNetwork_PacketHeaderSize;
+						int N = _N - headerEnd;
 
-					float lastTime = ofGetElapsedTimef();	//Time of last successfull receiving
-					while ( _N < size ) {
-						rec = TCP.receiveRawBytes( k, (char *)(buffer + _N), free ); 
-						if ( rec > 0 ) {
-							_N += rec;
-							lastTime = ofGetElapsedTimef();
-						}
-						else {
-							float time = ofGetElapsedTimef();
-							if ( time >= lastTime + 1.0 ) {		//TODO Parameter - connection is lost
-								cout << "Reading data error frame " << header.frame << endl;
-								break;
+						//Shifting buffer to data begin
+						shiftBuffer(buffer, _N, N);
+
+						int size = header.size;
+
+						float lastTime = ofGetElapsedTimef();	//Time of last successfull receiving
+						while (_N < size) {
+							rec = TCP.receiveRawBytes(k, (char *)(buffer + _N), free);
+							if (rec > 0) {
+								_N += rec;
+								lastTime = ofGetElapsedTimef();
+							}
+							else {
+								float time = ofGetElapsedTimef();
+								if (time >= lastTime + 1.0) {		//TODO Parameter - connection is lost
+									cout << "Reading data error frame " << header.frame << endl;
+									break;
+								}
 							}
 						}
+						if (_N >= size) {
+							if (_threaded) lock();
+							//Data was read successfull
+							memcpy(&_data[0], buffer, size);
+							_frame = header.frame;
+							_size = header.size;
+							isDataNew_ = true;
+							//cout << _frame << endl;
+							if (_threaded) unlock();
+						}
 					}
-					if ( _N >= size ) {
-						if (_threaded) lock();
-						//Data was read successfull
-						memcpy( &_data[0], buffer, size );
-						_frame = header.frame;
-						_size = header.size;
-						isDataNew_ = true;
-						//cout << _frame << endl;
-						if (_threaded) unlock();
+					else {
+						//Shortening current buffer to continue searching for header
+						shiftBuffer(buffer, _N, ofxKuNetwork_PacketHeaderSize);
 					}
-				}
-				else {
-					//Shortening current buffer to continue searching for header
-					shiftBuffer( buffer, _N, ofxKuNetwork_PacketHeaderSize );
 				}
 
 
