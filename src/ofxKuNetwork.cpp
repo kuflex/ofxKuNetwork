@@ -349,7 +349,9 @@ void ofxKuNetworkTcpServer::close()
 {
 	if (!enabled_) return;
 	if ( _threaded ) {
-		stopThread();		//TODO - it crashes application!
+		//stopThread();		//TODO - it crashes application!
+		long wait_ms = 10000;	//WARNING - is not closed, then can be crash!
+		waitForThread(true, wait_ms);
 	}
 	TCP.close();
 }
