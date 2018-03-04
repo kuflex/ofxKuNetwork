@@ -105,6 +105,7 @@ private:
 
 	ofxTCPServer_ku TCP;					
 	void disconnectClient( int id );	//Disconnect client
+	void disconnectAll();				//Disconnect all clients
 
 	int _frame;
 	int _size;

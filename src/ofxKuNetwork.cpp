@@ -350,8 +350,9 @@ void ofxKuNetworkTcpServer::startTCP()
 void ofxKuNetworkTcpServer::close()
 {
 	if (!enabled_) return;
+	disconnectAll();			//TODO for some reason it don't works, if connection is valid, "waitForThread" wait infinity time.
+
 	if ( _threaded ) {
-		//stopThread();		//TODO - it crashes application!
 		long wait_ms = 10000;	//WARNING - is not closed, then can be crash!
 		waitForThread(true, wait_ms);
 	}
@@ -382,11 +383,7 @@ void ofxKuNetworkTcpServer::threadedFunction()
 		//Restarting - just disconnect all clients
 		if ( _wantRestart ) {
 			_wantRestart = false;
-			for(int k = 0; k < TCP.getNumClients(); k++){
-				if ( TCP.isClientConnected(k) ) { 
-					disconnectClient( k );
-				}
-			}
+			disconnectAll();
 		}
 	}
 
@@ -507,6 +504,16 @@ void ofxKuNetworkTcpServer::disconnectClient( int id )	//отключить кл
 		TCP.disconnectClient( id );
 	}
 }
+
+//-------------------------------------------------------------------
+void ofxKuNetworkTcpServer::disconnectAll() {
+	for (int k = 0; k < TCP.getNumClients(); k++) {
+		if (TCP.isClientConnected(k)) {
+			disconnectClient(k);
+		}
+	}
+}
+
 
 //-------------------------------------------------------------------
 bool ofxKuNetworkTcpServer::isDataNew() {
