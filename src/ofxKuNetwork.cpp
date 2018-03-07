@@ -507,11 +507,13 @@ void ofxKuNetworkTcpServer::disconnectClient( int id )	//отключить кл
 
 //-------------------------------------------------------------------
 void ofxKuNetworkTcpServer::disconnectAll() {
-	for (int k = 0; k < TCP.getNumClients(); k++) {
-		if (TCP.isClientConnected(k)) {
-			disconnectClient(k);
-		}
-	}
+	cout << "\tDisconnecting all clients" << endl;
+	TCP.disconnectAllClients();
+	//for (int k = 0; k < TCP.getNumClients(); k++) {
+	//	if (TCP.isClientConnected(k)) {
+	//		disconnectClient(k);
+	//	}
+	//}
 }
 
 
