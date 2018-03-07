@@ -350,7 +350,7 @@ void ofxKuNetworkTcpServer::startTCP()
 void ofxKuNetworkTcpServer::close()
 {
 	if (!enabled_) return;
-	disconnectAll();			//TODO for some reason it don't works, if connection is valid, "waitForThread" wait infinity time.
+	//disconnectAll();			//TODO for some reason it don't works, if connection is valid, "waitForThread" wait infinity time.
 
 	if ( _threaded ) {
 		long wait_ms = 10000;	//WARNING - is not closed, then can be crash!
